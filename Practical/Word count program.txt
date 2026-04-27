@@ -1,0 +1,88 @@
+>>> rdd1 = sc.textFile("/user/cddacmaylab013/data")
+>>> rdd1.count()                                                                                                                                                        
+8
+>>> rdd1.getNumPartitions()                                                                                                                                      
+3                                                                                                                                                                
+>>> sc.defaultParallelism                                                                                                                                        
+2
+
+>>> rdd2 = rdd1.repartition(2)
+>>> rdd2.getNumPartitions()
+2
+>>> rdd3 = rdd2.flatMap(lambda a : a.split(" "))                                                                                                                 
+>>> for line in rdd3.collect():
+...     print(line)
+... 
+[Stage 3:>                                                                                                                                                  (0 + 
+[Stage 3:=================================================>                                                                                                 (1 + 
+[Stage 3:=================================================>                                                                                                 (1 + 
+
+car
+river
+dear
+bear
+river
+car
+car
+bear
+bear
+river
+river
+car
+car
+car
+river
+river
+bear
+river
+car
+river                                                                                                                                                            
+river                                                                                                                                                            
+bear                                                                                                                                                             
+bear                                 
+
+>>> rdd4 = rdd3.map(lambda a : (a,1))                                                                                                                            
+>>> for line in rdd4.collect():                                                                                                                                  
+...     print(line)                                                                                                                                              
+...                                                                                                                                                              
+[Stage 5:>                                                                                                                                                  (0 + 
+[Stage 5:>                                                                                                                                                  (0 + 
+[Stage 5:>                                                                                                                                                  (0 + 
+[Stage 5:>                                                                                                                                                  (0 + 
+[Stage 5:=================================================>                                                                                                 (1 + 
+[Stage 5:==================================================================================================>                                                (2 + 
+[Stage 6:>                                                                                                                                                  (0 + 
+
+('car', 1)
+('river', 1)                                                                                                                                                     
+('dear', 1)                                                                                                                                                      
+('bear', 1)                                                                                                                                                      
+('river', 1)                                                                                                                                                     
+('car', 1)                                                                                                                                                       
+('car', 1)                                                                                                                                                       
+('bear', 1)                                                                                                                                                      
+('bear', 1)                                                                                                                                                      
+('river', 1)                                                                                                                                                     
+('river', 1)                                                                                                                                                     
+('car', 1)                                                                                                                                                       
+('car', 1)                                                                                                                                                       
+('car', 1)                                                                                                                                                       
+('river', 1)                                                                                                                                                     
+('river', 1)                                                                                                                                                     
+('bear', 1)                                                                                                                                                      
+('river', 1)                                                                                                                                                     
+('car', 1)                                                                                                                                                       
+('river', 1)                                                                                                                                                     
+('river', 1)                                                                                                                                                     
+('bear', 1)                                                                                                                                                      
+('bear', 1)                                                                                                                                                      
+>>> rdd5 = rdd4.reduceByKey( lambda a,b : (a+b))                                                                                                                 
+>>> for line in rdd5.collect():                                                                                                                                  
+...     print(line)                                                                                                                                              
+...                                                                                                                                                              
+('bear', 6)                                                                                                                                                      
+('car', 7)                                                                                                                                                       
+('river', 9)                                                                                                                                                     
+('dear', 1)                                                                                                                                                      
+>>> rdd5.saveAsTextFile("/user/cddacmaylab013/spark1")                                                                                                           
+>>>                                                            
