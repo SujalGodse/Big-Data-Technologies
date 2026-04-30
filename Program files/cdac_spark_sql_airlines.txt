@@ -1,0 +1,171 @@
+>>> airDF1 = spark.read.format("csv").option("header","True").option("inferSchema","True").load("hdfs://localhost:9000/user/labuser/airlines.csv")
+>>> airDF1.printSchema()
+root
+ |-- Year: integer (nullable = true)
+ |-- Quarter: integer (nullable = true)
+ |-- Avg_rev_per_seat: double (nullable = true)
+ |-- booked_seats: integer (nullable = true)
+
+>>> airDF1.show()
++----+-------+----------------+------------+
+|Year|Quarter|Avg_rev_per_seat|booked_seats|
++----+-------+----------------+------------+
+|1995|      1|           296.9|       46561|
+|1995|      2|           296.8|       37443|
+|1995|      3|          287.51|       34128|
+|1995|      4|          287.78|       30388|
+|1996|      1|          283.97|       47808|
+|1996|      2|          275.78|       43020|
+|1996|      3|          269.49|       38952|
+|1996|      4|          278.33|       37443|
+|1997|      1|           283.4|       35067|
+|1997|      2|          289.44|       46565|
+|1997|      3|          282.27|       38886|
+|1997|      4|          293.51|       37454|
+|1998|      1|          304.74|       31315|
+|1998|      2|          300.97|       30852|
+|1998|      3|          315.25|       38118|
+|1998|      4|          316.18|       35393|
+|1999|      1|          331.74|       47453|
+|1999|      2|          329.34|       38243|
+|1999|      3|          317.22|       33048|
+|1999|      4|          317.93|       31256|
++----+-------+----------------+------------+
+only showing top 20 rows
+
+>>> airDF1 = spark.read.format("csv").option("header","False").option("inferSchema","True").load("hdfs://localhost:9000/user/labuser/airlines.csv")
+>>> airDF1.printSchema()
+root
+ |-- _c0: string (nullable = true)
+ |-- _c1: string (nullable = true)
+ |-- _c2: string (nullable = true)
+ |-- _c3: string (nullable = true)
+
+>>> airDF1.show(5)
++----+-------+----------------+------------+
+| _c0|    _c1|             _c2|         _c3|
++----+-------+----------------+------------+
+|Year|Quarter|Avg_rev_per_seat|booked_seats|
+|1995|      1|           296.9|       46561|
+|1995|      2|           296.8|       37443|
+|1995|      3|          287.51|       34128|
+|1995|      4|          287.78|       30388|
++----+-------+----------------+------------+
+only showing top 5 rows
+
+>>> airDF1 = spark.read.format("csv").option("header","True").option("inferSchema","True").load("hdfs://localhost:9000/user/labuser/airlines.csv")
+>>> airDF1.printSchema()
+root
+ |-- Year: integer (nullable = true)
+ |-- Quarter: integer (nullable = true)
+ |-- Avg_rev_per_seat: double (nullable = true)
+ |-- booked_seats: integer (nullable = true)
+
+>>> airDF1.show(5)
++----+-------+----------------+------------+
+|Year|Quarter|Avg_rev_per_seat|booked_seats|
++----+-------+----------------+------------+
+|1995|      1|           296.9|       46561|
+|1995|      2|           296.8|       37443|
+|1995|      3|          287.51|       34128|
+|1995|      4|          287.78|       30388|
+|1996|      1|          283.97|       47808|
++----+-------+----------------+------------+
+only showing top 5 rows
+
+>>> airDF2 = spark.sql("select year, sum(Avg_rev_per_seat*booked_seats) as total 
+  File "<stdin>", line 1
+    airDF2 = spark.sql("select year, sum(Avg_rev_per_seat*booked_seats) as total 
+                                                                                ^
+SyntaxError: EOL while scanning string literal
+>>> airDF2.createOrReplaceTempView("airlines")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'airDF2' is not defined
+>>> airDF1.createOrReplaceTempView("airlines")
+>>> airDF2 = spark.sql("select year, sum(Avg_rev_per_seat*booked_seats) as total from airlines group by year order by total desc") 
+>>> airDF2.show(21)
++----+--------------------+                                                     
+|year|               total|
++----+--------------------+
+|2013|       6.636320871E7|
+|2014| 6.262417585000001E7|
+|2015|       6.237899057E7|
+|2012|       6.219912728E7|
+|2008|5.7653170760000005E7|
+|2007|       5.730921607E7|
+|2001| 5.553377999999999E7|
+|2010|       5.486152129E7|
+|2000|5.2342926550000004E7|
+|2011|       5.188828622E7|
+|2004|5.0631364949999996E7|
+|2006|5.0437898419999994E7|
+|2003|       4.927321083E7|
+|1999|       4.875771448E7|
+|2002|        4.74991465E7|
+|2009|       4.674644659E7|
+|2005|       4.637678624E7|
+|1996|       4.635877803E7|
+|1997|       4.538523616E7|
+|1995|       4.349424322E7|
+|1998|       4.203571778E7|
++----+--------------------+
+
+>>> airDF2 = spark.sql("select year, sum(Avg_rev_per_seat*booked_seats)/1000000 as total_M from airlines group by year order by total_M desc") 
+>>> airDF2.show(21)
++----+------------------+                                                       
+|year|           total_M|
++----+------------------+
+|2013|       66.36320871|
+|2014| 62.62417585000001|
+|2015|       62.37899057|
+|2012|       62.19912728|
+|2008|       57.65317076|
+|2007|       57.30921607|
+|2001| 55.53377999999999|
+|2010|       54.86152129|
+|2000|       52.34292655|
+|2011|       51.88828622|
+|2004|       50.63136495|
+|2006|50.437898419999996|
+|2003|       49.27321083|
+|1999|       48.75771448|
+|2002|        47.4991465|
+|2009|46.746446590000005|
+|2005|       46.37678624|
+|1996|       46.35877803|
+|1997|       45.38523616|
+|1995|       43.49424322|
+|1998|       42.03571778|
++----+------------------+
+
+>>> airDF2 = spark.sql("select year, round(sum(Avg_rev_per_seat*booked_seats)/1000000,2) as total_M from airlines group by year order by total_M desc") 
+>>> airDF2.show(21)
++----+-------+                                                                  
+|year|total_M|
++----+-------+
+|2013|  66.36|
+|2014|  62.62|
+|2015|  62.38|
+|2012|   62.2|
+|2008|  57.65|
+|2007|  57.31|
+|2001|  55.53|
+|2010|  54.86|
+|2000|  52.34|
+|2011|  51.89|
+|2004|  50.63|
+|2006|  50.44|
+|2003|  49.27|
+|1999|  48.76|
+|2002|   47.5|
+|2009|  46.75|
+|2005|  46.38|
+|1996|  46.36|
+|1997|  45.39|
+|1995|  43.49|
+|1998|  42.04|
++----+-------+
+
+>>> 
+

@@ -1,0 +1,54 @@
+from pyspark.sql.types import StructType, StructField, StringType,IntegerType
+
+from pyspark.sql.functions import col, lit, when
+
+data1 = [('James','','Smith','1991-04-01','M',3000),
+  ('Michael','Rose','','2000-05-19','M',4000),
+  ('Robert','','Williams','1978-09-05','M',4000),
+  ('Maria','Anne','Jones','1967-12-01','F',4000),
+  ('Jen','Mary','Brown','1980-02-17','F',-1),
+  ('JM ABCDEFGHIJKLMNOPQRSTUVWXYZ','','','1982-04-17','M',5000)
+
+]
+
+columns = ["firstname","middlename","lastname","dob","gender","salary"]
+
+df = spark.createDataFrame(data=data1, schema = columns)
+df.printSchema()
+df.show(truncate=False)
+
+# change datatype in schema
+df2 = df.withColumn("salary2",col("salary").cast("Integer"))
+df2.printSchema()
+df2.show(truncate=False)
+
+#change value in salary col
+df3 = df.withColumn("salary",col("salary")*100)
+df3.printSchema()
+df3.show(truncate=False) 
+
+#use of when function
+dfn = df.withColumn("age_gender", when(col("gender") == 'M', "Male").otherwise("Female"))
+dfn.show()
+
+#adding a new col by deriving value
+df4 = df.withColumn("NewSalaryColumn",col("salary")* -1)
+df4.printSchema()
+df4.show(truncate=False) 
+
+
+#adding a new col with constant value
+df5 = df.withColumn("Country", lit("USA"))
+df5.printSchema()
+df5.show(truncate=False) 
+
+#adding multiple cols
+df6 = df.withColumn("Country", lit("USA")) \
+   .withColumn("anotherColumn",lit("anotherValue"))
+df6.printSchema()
+
+#rename a col
+df.withColumnRenamed("firstname","fname").show(truncate=False) 
+
+#drop a col  
+df4.drop("NewSalaryColumn").show(truncate=False) 
